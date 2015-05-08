@@ -23,14 +23,23 @@ git push -u --all origin
 What is the difference between a set, a bag, and a sequence?
 -> set is a collection of unique elements. A bad is a collection of any elements. A sequence is a ordered collection of elements. 
 
+//Sets is an unordered collection of unique elements.
+//Bags is an unordered collection of elements (could contain duplicate)
+//Sequence is an ordered collection of elements (could contain duplicate)
+
 What is a language (in terms of sets and sequences)?
 -> Language is a set of strings which are sequence of characters.
+
 
 What is a compiler? Name some.
 -> A compiler a program that compiles code. gcc
 
+//commpiles the code and makes it machine readable. 
+
 What is an interpreter? How does that differ from a compiler?
 -> Interpreter interprets the code that does not need to be compiled. like bash script etc. 
+
+//executes code line by line
 
 What is the derivative of a language?
 -> sentences. 

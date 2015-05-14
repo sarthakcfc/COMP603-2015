@@ -1,0 +1,14 @@
+1) Compiler: Tiny C Compiler
+
+2) Functions
+	a) Scan/Lex/Tokenize : tccoff.c (scans the input file, find association between source file and function)
+	d) parse : tccpp.c (searches the file for keywords, allocates new tokens)
+	e) AST :
+	f) Optimization :
+	g) Code generation : c67-gen.c, i386.gen.c, x86_64-gen.c (these files return registers for function and do data relocations for specific processors.)
+
+
+3) 7x faster than gcc.
+ Should have had more comments on top of each source file explain what the file is for.
+
+ 4) 

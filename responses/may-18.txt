@@ -1,6 +1,6 @@
 What does it mean for two sets to be disjoint?
-
+--> There are no common elements.
 
 
 What is the union of two sets?
-
+--> Intersection of two sets. i.e. Elements that are present in both sets

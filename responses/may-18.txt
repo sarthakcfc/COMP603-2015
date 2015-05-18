@@ -3,4 +3,4 @@ What does it mean for two sets to be disjoint?
 
 
 What is the union of two sets?
---> Intersection of two sets. i.e. Elements that are present in both sets
+--> everything in A and everything in B.

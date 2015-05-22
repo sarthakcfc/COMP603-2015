@@ -106,7 +106,7 @@ class Program : public Container {
  * Modify as necessary and add whatever functions you need to get things done.
  */
 void parse(fstream & file, Container * container) {
-    char c;
+    /*char c;
     // How to peek at the next character
     c = (char)file.peek();
     // How to print out that character
@@ -116,7 +116,31 @@ void parse(fstream & file, Container * container) {
     // How to print out that character
     cout << c;
     // How to insert a node into the container.
-    container->children.push_back(new CommandNode(c));
+    container->children.push_back(new CommandNode(c));*/
+	char next;
+	file >> next;
+    if (next == '+' || next == '-' || next == '<' || next == '>' || next == ',' || next == '.')
+    {
+		container->children.push_back (new CommandNode (next));
+        //parse (fstream & file, Container * container);    
+    }
+	next = (char) file.peek();
+
+	if (next == '[')
+	{
+		Loop program;
+		parse (file, & program);
+		container->children.push_back (new Loop (program));
+		file >> next;
+	}
+
+	next = (char) file.peek();
+
+    if (next == '+' || next == '-' || next == '<' || next == '>' || next == ',' || next == '.')
+    {
+		//container->children.push_back (new CommandNode (next));
+        parse (file, container);    
+    }
 }
 
 /**

@@ -1,4 +1,4 @@
-/*
+ /*
 = Brainfuck
 
 If you have gcc:
@@ -58,7 +58,8 @@ class Node {
 class CommandNode : public Node {
     public:
         Command command;
-        CommandNode(char c) {
+		int count;
+        CommandNode(char c, int n) {
             switch(c) {
                 case '+': command = INCREMENT; break;
                 case '-': command = DECREMENT; break;
@@ -67,6 +68,7 @@ class CommandNode : public Node {
                 case ',': command = INPUT; break;
                 case '.': command = OUTPUT; break;
             }
+			count = n;
         }
         void accept (Visitor * v) {
             v->visit(this);
@@ -117,11 +119,60 @@ void parse(fstream & file, Container * container) {
     cout << c;
     // How to insert a node into the container.
     container->children.push_back(new CommandNode(c));*/
+	Loop * program; //loop object
 	char next;
-	file >> next;
+	char temp;
+	int count;
+
+	while (file >> next)
+	{
+		count = 1;
+
+		if (next == '+' || next == '-' || next == '<' || next == '>' || next == ',' || next == '.')
+		{
+			while (((char)file.peek()) == next)
+				{
+					file >> next;
+					count++;
+				}
+			container->children.push_back (new CommandNode(next, count));
+		}
+		else if (next == '[')
+		{
+			program = new Loop(); //new loop object
+			parse (file, program); //parse inside program
+			if (program->children.size() == 1)
+			{
+				CommandNode* child = dynamic_cast<CommandNode*>(program->children.front());
+				if (child->command == INCREMENT || child->command == DECREMENT)
+				{
+					container->children.push_back(new CommandNode('z',1));
+					delete program;
+				}
+				else
+				{
+					container->children.push_back(program);
+				}
+			}
+			else
+			{
+				container->children.push_back(program);
+			}
+		}
+		else if (next == ']')
+		{
+			return;
+		}
+	}
+	/*file >> next;
     if (next == '+' || next == '-' || next == '<' || next == '>' || next == ',' || next == '.')
     {
-		container->children.push_back (new CommandNode (next));
+		while ((temp == (char)file.peek()) == next)
+		{
+			file >> next;
+			count++;
+		}
+		container->children.push_back (new CommandNode (next, count));
         //parse (fstream & file, Container * container);    
     }
 	next = (char) file.peek();
@@ -140,7 +191,7 @@ void parse(fstream & file, Container * container) {
     {
 		//container->children.push_back (new CommandNode (next));
         parse (file, container);    
-    }
+    }*/
 }
 
 /**
@@ -151,14 +202,18 @@ void parse(fstream & file, Container * container) {
 class Printer : public Visitor {
     public:
         void visit(const CommandNode * leaf) {
-            switch (leaf->command) {
-                case INCREMENT:   cout << '+'; break;
-                case DECREMENT:   cout << '-'; break;
-                case SHIFT_LEFT:  cout << '<'; break;
-                case SHIFT_RIGHT: cout << '>'; break;
-                case INPUT:       cout << ','; break;
-                case OUTPUT:      cout << '.'; break;
-            }
+			
+			for (int i = 0; i < leaf->count; i++)
+			{
+				switch (leaf->command) {
+					case INCREMENT:   cout << '+'; break;
+					case DECREMENT:   cout << '-'; break;
+					case SHIFT_LEFT:  cout << '<'; break;
+					case SHIFT_RIGHT: cout << '>'; break;
+					case INPUT:       cout << ','; break;
+					case OUTPUT:      cout << '.'; break;
+				}
+			}
         }
         void visit(const Loop * loop) {
             cout << '[';
@@ -175,31 +230,69 @@ class Printer : public Visitor {
         }
 };
 
+/**
+ *Compiler
+ *
+ */
+class Compiler : public Visitor {
+    public:
+        void visit(const CommandNode * leaf) {
+			for (int i = 0; i < leaf->count; i++)
+			{
+				switch (leaf->command) {
+					case INCREMENT:   cout << "++*ptr;\n"; break;
+					case DECREMENT:   cout << "--*ptr;\n"; break;
+					case SHIFT_LEFT:  cout << "--ptr;\n" ; break;
+					case SHIFT_RIGHT: cout << "++ptr;\n" ; break;
+					case INPUT:       cout << "*ptr=getchar();\n"; break;
+					case OUTPUT:      cout << "putchar(*ptr);\n"; break;
+				}
+			}
+        }
+        void visit(const Loop * loop) {
+            cout << "while (*ptr) {\n";
+            for (vector<Node*>::const_iterator it = loop->children.begin(); it != loop->children.end(); ++it) {
+                (*it)->accept(this);
+            }
+			cout << "}\n";
+        }
+        void visit(const Program * program) {
+            for (vector<Node*>::const_iterator it = program->children.begin(); it != program->children.end(); ++it) {
+                (*it)->accept(this);
+            }
+            cout << '\n';
+        }
+};
+
 class Interpreter : public Visitor {
     char memory[30000];
     int pointer;
     public:
         void visit(const CommandNode * leaf) {
-            switch (leaf->command) {
-                case INCREMENT:
-					memory [pointer]++;
-                    break;
-                case DECREMENT:
-					memory [pointer]--;
-                    break;
-                case SHIFT_LEFT:
-					pointer--;
-                    break;
-                case SHIFT_RIGHT:
-					pointer++;
-                    break;
-                case INPUT:
-					cin.get (memory [pointer]);
-                    break;
-                case OUTPUT:
-					cout << memory [pointer];
-                    break;
-            }
+            
+			for (int i = 0; i < leaf->count; i++) 
+			{
+					switch (leaf->command) {
+					case INCREMENT:
+						memory [pointer]++;
+						break;
+					case DECREMENT:
+						memory [pointer]--;
+						break;
+					case SHIFT_LEFT:
+						pointer--;
+						break;
+					case SHIFT_RIGHT:
+						pointer++;
+						break;
+					case INPUT:
+						cin.get (memory [pointer]);
+						break;
+					case OUTPUT:
+						cout << memory [pointer];
+						break;
+				}
+			}
         }
         void visit(const Loop * loop) {
 			while (memory[pointer]){

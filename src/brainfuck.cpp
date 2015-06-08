@@ -135,7 +135,7 @@ void parse(fstream & file, Container * container) {
 					file >> next;
 					count++;
 				}
-			container->children.push_back (new CommandNode(next, count));
+			container->children.push_back(new CommandNode(next, count));
 		}
 		else if (next == '[')
 		{
